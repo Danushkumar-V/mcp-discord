@@ -9,7 +9,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "node build/index.js --transport http --port 3000",
     "start": "node build/index.js",
     "dev": "node --loader ts-node/esm src/index.ts",
     "test-api": "node test-api.js",
