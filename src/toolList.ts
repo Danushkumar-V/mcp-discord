@@ -52,14 +52,15 @@ export const toolList = [
   },
   {
     name: "discord_send",
-    description: "Sends a message to a specified Discord text channel",
+    description: "Sends a message to one or more Discord text channels by name in a server",
     inputSchema: {
       type: "object",
       properties: {
-        channelId: { type: "string" },
+        guildId: { type: "string" },
+        channelNames: { anyOf: [ { type: "string" }, { type: "array", items: { type: "string" } } ] },
         message: { type: "string" }
       },
-      required: ["channelId", "message"]
+      required: ["guildId", "channelNames", "message"]
     }
   },
   {

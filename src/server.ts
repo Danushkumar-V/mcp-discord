@@ -31,6 +31,7 @@ import {
   editCategoryHandler,
   deleteCategoryHandler
 } from './tools/tools.js';
+import { sendAssignmentReminders } from './tools/reminder.js';
 import { MCPTransport } from './transport.js';
 import { info, error } from './logger.js';
 
@@ -38,6 +39,7 @@ export class DiscordMCPServer {
   private server: Server;
   private toolContext: ReturnType<typeof createToolContext>;
   private clientStatusInterval: NodeJS.Timeout | null = null;
+  private reminderInterval: NodeJS.Timeout | null = null;
 
   constructor(
     private client: Client, 
@@ -218,12 +220,17 @@ export class DiscordMCPServer {
     // Add client to server context so transport can access it
     (this.server as any)._context = { client: this.client };
     (this.server as any).client = this.client;
-    
+
     // Setup periodic client state logging
     this.clientStatusInterval = setInterval(() => {
       this.logClientState("periodic check");
     }, 10000);
-    
+
+    // Setup assignment reminder every 5 minutes
+    this.reminderInterval = setInterval(async () => {
+      await sendAssignmentReminders(this.toolContext);
+    }, 5 * 60 * 1000);
+
     await this.transport.start(this.server);
   }
 
@@ -233,7 +240,11 @@ export class DiscordMCPServer {
       clearInterval(this.clientStatusInterval);
       this.clientStatusInterval = null;
     }
-    
+    // Clear the reminder interval
+    if (this.reminderInterval) {
+      clearInterval(this.reminderInterval);
+      this.reminderInterval = null;
+    }
     await this.transport.stop();
   }
 } 

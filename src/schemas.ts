@@ -5,7 +5,8 @@ export const DiscordLoginSchema = z.object({
 });
 
 export const SendMessageSchema = z.object({
-    channelId: z.string(),
+    guildId: z.string(),
+    channelNames: z.union([z.string(), z.array(z.string())]),
     message: z.string()
 });
 
